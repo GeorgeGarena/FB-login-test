@@ -1,44 +1,41 @@
-import { useState } from 'react'
-import logo from './logo.svg'
 import './App.css'
+import { useEffect } from 'react'
+import { getParam } from './utils';
 
+let timer: ReturnType<typeof setTimeout>;
 function App() {
-  const [count, setCount] = useState(0)
+  useEffect(() => {
+    const accessToken = getParam("#access_token");
+    const error = getParam("error");
+    const state = getParam("state");
+    if (accessToken) {
+      const MeUrl = `https://graph.facebook.com/v12.0/me?fields=id%2Cname&access_token=${accessToken}`
+      fetch(MeUrl).then(d => d.text()).then(d => JSON.parse(d)).then((response) => {
+        console.log(response);
+        console.log(state)
+      });
+      return;
+    } 
+
+    if (error) {
+      console.log('error', error);
+      return;
+    }
+
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const uri = "https://georgegarena.github.io/FB-login-test/";
+      const appId = 1092249954903916;
+
+      // @ts-ignore
+      window.location = encodeURI(
+        `https://www.facebook.com/v12.0/dialog/oauth?client_id=${appId}&redirect_uri=${uri}&response_type=token&auth_type=rerequest&state=${state}`
+      );
+    }, 5000)
+  }, [])
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
-    </div>
+    <div>Home</div>
   )
 }
 
